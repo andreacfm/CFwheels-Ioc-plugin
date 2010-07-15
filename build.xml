@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="RailoAjax" default="compile">
+	
+	<!-- update build properties -->
+	<propertyfile file="build.properties">
+		<entry key="build.number" type="int" operation="+" value="1" pattern="00"/>
+		<entry key="build.date" type="date" pattern="EEEE MMM dd, yyyy" value="now"/>
+		<entry key="build.time" type="date" pattern="kk:mm:ss" value="now"/>
+		<entry key="build.timestamp" type="date" pattern="yyyy-MM-dd'T'HH:mm:ss" value="now"/>
+		<entry key="build.year" type="date" pattern="yyyy" value="now"/>
+	</propertyfile>	
+		
+	<!-- project properties -->
+	<property file="project.properties"/>
+	
+	<!-- build properties -->	
+	<property file="build.properties"/>	
+
+	
+	<!-- setup -->
+	<target name="setup">
+		<mkdir dir="${basedir}/temp" />		
+	</target>
+
+		
+	<target name="deploy">
+		
+		<echo message="Copy to temp"/>		
+		<copy todir="${basedir}/temp">
+			<fileset dir="${basedir}/src"/>
+		</copy>
+
+		<echo message="Replace Licence"/>
+		<replace dir="${basedir}/temp">
+			<replacefilter token="@number" value="${build.number}"/>
+			<replacefilter token="@projectName" value="${build.projectName}"/>
+			<replacefilter token="@date" value="${build.date}"/>
+			<replacefilter token="@projectUrl" value="${build.projectUrl}"/>
+			<replacefilter token="@projectVersion" value="${build.projectVersion}"/>
+			<replacefilter token="@authorEmail" value="${build.authorEmail}"/>
+			<replacefilter token="@author" value="${build.author}"/>
+			<replacefilter token="@year" value="${build.year}"/>
+		</replace>
+
+		<echo message="Copy source to bin"/>		
+		<copy todir="${project.bin}">
+			<fileset dir="${basedir}/temp"/>
+		</copy>
+			
+		<echo message="Make the zip and deploy to test"/>		
+		<zip destfile="${project.testPath}/ioc-${build.projectVersion}.zip">
+			<fileset dir="${basedir}/temp"/>
+		</zip>
+						
+	</target>
+	
+	
+	<!-- teardown -->
+	<target name="teardown">
+		<delete dir="${basedir}/temp"/>	
+	</target>
+	
+	<target 
+		name="compile" 
+		depends="setup,deploy,teardown" />
+	
+
+</project>
+
